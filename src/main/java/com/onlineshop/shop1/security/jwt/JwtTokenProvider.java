@@ -13,6 +13,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.JwtException;
 
 @Component
 public class JwtTokenProvider {
@@ -30,20 +31,17 @@ public class JwtTokenProvider {
         this.jwtProperties = jwtProperties;
 
         byte[] keyBytes = Decoders.BASE64.decode(
-                jwtProperties.secret()
-        );
+                jwtProperties.secret());
 
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String createAccessToken(
             String customerId,
-            CustomerRole role
-    ) {
+            CustomerRole role) {
         Instant now = Instant.now();
         Instant expiration = now.plusMillis(
-                jwtProperties.accessTokenExpiration()
-        );
+                jwtProperties.accessTokenExpiration());
 
         return Jwts.builder()
                 .subject(customerId)
@@ -58,8 +56,7 @@ public class JwtTokenProvider {
     public String createRefreshToken(String customerId) {
         Instant now = Instant.now();
         Instant expiration = now.plusMillis(
-                jwtProperties.refreshTokenExpiration()
-        );
+                jwtProperties.refreshTokenExpiration());
 
         return Jwts.builder()
                 .subject(customerId)
@@ -87,11 +84,36 @@ public class JwtTokenProvider {
                 .get(TOKEN_TYPE_CLAIM, String.class);
     }
 
+    // 리프레시 만료 시간
     public long getRefreshTokenExpiration() {
         return jwtProperties.refreshTokenExpiration();
     }
 
+    // 엑세스 만료 시간
     public long getAccessTokenExpiration() {
-    return jwtProperties.accessTokenExpiration();
+        return jwtProperties.accessTokenExpiration();
     }
+
+    // 토큰 잘못들어왔을 때 검증
+    public boolean validateToken(String token) {
+        try {
+            parseClaims(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException exception) {
+            return false;
+        }
+    }
+
+    public boolean isRefreshToken(String token) {
+        try {
+            String tokenType = getTokenType(token);
+
+            return REFRESH_TOKEN_TYPE.equals(tokenType);
+        } catch (JwtException | IllegalArgumentException exception) {
+            return false;
+        }
+    }
+
+    
+
 }

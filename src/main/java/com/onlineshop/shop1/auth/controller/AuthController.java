@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.onlineshop.shop1.auth.dto.LoginRequest;
 import com.onlineshop.shop1.auth.dto.LoginResponse;
+import com.onlineshop.shop1.auth.dto.ReissueRequest;
+import com.onlineshop.shop1.auth.dto.ReissueResponse;
 import com.onlineshop.shop1.auth.dto.SignupRequest;
 import com.onlineshop.shop1.auth.dto.SignupResponse;
 import com.onlineshop.shop1.auth.service.AuthService;
@@ -38,6 +40,13 @@ public class AuthController {
     @Operation(summary = "로그인", description = "사용자 아이디와 비밀번호를 검증합니다.")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         LoginResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/reissue")
+    @Operation(summary = "Access Token 재발급", description = "유효한 Refresh Token을 사용해 새로운 Access Token을 발급합니다.")
+    public ResponseEntity<ReissueResponse> reissue(@Valid @RequestBody ReissueRequest request) {
+        ReissueResponse response = authService.reissue(request);
         return ResponseEntity.ok(response);
     }
 }

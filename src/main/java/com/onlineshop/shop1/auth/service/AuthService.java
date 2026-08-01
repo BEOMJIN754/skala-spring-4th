@@ -14,6 +14,10 @@ import com.onlineshop.shop1.exception.DuplicateCustomerException;
 import com.onlineshop.shop1.exception.LoginFailedException;
 import com.onlineshop.shop1.security.jwt.JwtTokenProvider;
 
+import com.onlineshop.shop1.auth.dto.ReissueRequest;
+import com.onlineshop.shop1.auth.dto.ReissueResponse;
+import com.onlineshop.shop1.exception.InvalidRefreshTokenException;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -21,10 +25,10 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class AuthService {
 
-private final CustomerRepository customerRepository;
-private final PasswordEncoder passwordEncoder;
-private final JwtTokenProvider jwtTokenProvider;
-private final RefreshTokenService refreshTokenService;
+    private final CustomerRepository customerRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final RefreshTokenService refreshTokenService;
 
     @Transactional
     public SignupResponse signup(SignupRequest request) {
@@ -47,41 +51,34 @@ private final RefreshTokenService refreshTokenService;
         }
     }
 
-public LoginResponse login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request) {
 
-    Customer customer = customerRepository
-            .findByCustomerId(request.getCustomerId())
-            .orElseThrow(LoginFailedException::new);
+        Customer customer = customerRepository
+                .findByCustomerId(request.getCustomerId())
+                .orElseThrow(LoginFailedException::new);
 
-    validatePassword(
-            request.getCustomerPw(),
-            customer.getEncodedPassword()
-    );
+        validatePassword(
+                request.getCustomerPw(),
+                customer.getEncodedPassword());
 
-    String accessToken =
-            jwtTokenProvider.createAccessToken(
-                    customer.getCustomerId(),
-                    customer.getRole()
-            );
+        String accessToken = jwtTokenProvider.createAccessToken(
+                customer.getCustomerId(),
+                customer.getRole());
 
-    String refreshToken =
-            jwtTokenProvider.createRefreshToken(
-                    customer.getCustomerId()
-            );
+        String refreshToken = jwtTokenProvider.createRefreshToken(
+                customer.getCustomerId());
 
-    refreshTokenService.save(
-            customer.getCustomerId(),
-            refreshToken,
-            jwtTokenProvider.getRefreshTokenExpiration()
-    );
+        refreshTokenService.save(
+                customer.getCustomerId(),
+                refreshToken,
+                jwtTokenProvider.getRefreshTokenExpiration());
 
-    return LoginResponse.of(
-            accessToken,
-            refreshToken,
-            jwtTokenProvider.getAccessTokenExpiration(),
-            jwtTokenProvider.getRefreshTokenExpiration()
-    );
-}
+        return LoginResponse.of(
+                accessToken,
+                refreshToken,
+                jwtTokenProvider.getAccessTokenExpiration(),
+                jwtTokenProvider.getRefreshTokenExpiration());
+    }
 
     private void validatePassword(
             String rawPassword,
@@ -90,7 +87,43 @@ public LoginResponse login(LoginRequest request) {
         if (!passwordEncoder.matches(rawPassword, encodedPassword)) {
             throw new LoginFailedException();
         }
-
     }
 
+    public ReissueResponse reissue(ReissueRequest request) {
+
+        String refreshToken = request.getRefreshToken();
+
+        validateRefreshToken(refreshToken);
+
+        String customerId = jwtTokenProvider.getCustomerId(refreshToken);
+
+        if (!refreshTokenService.matches(
+                customerId,
+                refreshToken)) {
+            throw new InvalidRefreshTokenException();
+        }
+
+        Customer customer = customerRepository
+                .findByCustomerId(customerId)
+                .orElseThrow(InvalidRefreshTokenException::new);
+
+        String newAccessToken = jwtTokenProvider.createAccessToken(
+                customer.getCustomerId(),
+                customer.getRole());
+
+        return ReissueResponse.of(
+                newAccessToken,
+                jwtTokenProvider.getAccessTokenExpiration());
+    }
+
+    private void validateRefreshToken(String refreshToken) {
+
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            throw new InvalidRefreshTokenException();
+        }
+
+        if (!jwtTokenProvider.isRefreshToken(refreshToken)) {
+            throw new InvalidRefreshTokenException();
+        }
+    }
 }
