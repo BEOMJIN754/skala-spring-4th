@@ -8,7 +8,8 @@ import org.springframework.stereotype.Repository;
 import com.onlineshop.shop1.domain.customer.entity.Customer;
 
 @Repository
-public interface CustomerRepository  extends JpaRepository<Customer, Long> {
+public interface CustomerRepository extends JpaRepository<Customer, Long> {
     Optional<Customer> findByCustomerId(String customerId);
-} 
 
+    boolean existsByCustomerId(String customerId);
+}

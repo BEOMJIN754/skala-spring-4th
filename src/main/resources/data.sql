@@ -3,13 +3,14 @@
 -- =========================
 INSERT INTO customers (
     customer_id,
-    customer_pw,
+    encoded_password,
     customer_point,
-    created_at
+    created_at,
+    role
 ) VALUES
-('user1', 'password1', 1000000.0, CURRENT_TIMESTAMP),
-('user2', 'password2', 2000000.0, CURRENT_TIMESTAMP),
-('user3', 'password3', 3000000.0, CURRENT_TIMESTAMP);
+('user1', 'password1', 1000000.0, CURRENT_TIMESTAMP, 'USER'),
+('user2', 'password2', 2000000.0, CURRENT_TIMESTAMP, 'USER'),
+('user3', 'password3', 3000000.0, CURRENT_TIMESTAMP, 'USER');
 
 
 -- =========================

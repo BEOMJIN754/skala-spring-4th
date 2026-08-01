@@ -47,3 +47,7 @@ logging:
     com.onlineshop.shop1: DEBUG
     org.springframework.web: INFO
 
+jwt:
+  secret: oM7p4RrG8nq0L7w+q3y1A2Z9JpKf8cVxE6bHdT5sNQk=
+  access-token-expiration: 1800000
+  refresh-token-expiration: 604800000

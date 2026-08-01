@@ -34,7 +34,7 @@ public class Customer {
     private String customerId;
 
     @Column(nullable = false)
-    private String customerPw;
+    private String encodedPassword;
 
     @Column(nullable = false)
     private double customerPoint;
@@ -49,6 +49,7 @@ public class Customer {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        if(this.role == null){this.role = CustomerRole.USER;}
     }
 
     public void update(String customerId, Double customerPoint) {
@@ -65,4 +66,18 @@ public class Customer {
     public void returnPoint(double totalprice) {
         this.customerPoint += totalprice;
     }
+
+    public static Customer createUser(
+        String customerId,
+        String encodedPassword
+) {
+    return Customer.builder()
+            .customerId(customerId)
+            .encodedPassword(encodedPassword)
+            .customerPoint(1.0)
+            .role(CustomerRole.USER)
+            .build();
+}
+
+
 }
