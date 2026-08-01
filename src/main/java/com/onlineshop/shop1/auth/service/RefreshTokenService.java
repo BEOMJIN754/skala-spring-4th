@@ -43,9 +43,7 @@ public class RefreshTokenService {
         return redisTemplate.opsForValue().get(key);
     }
 
-    /**
-     * 전달받은 Refresh Token과 Redis의 토큰 비교
-     */
+
     public boolean matches(String customerId, String refreshToken) {
         String savedRefreshToken = findByCustomerId(customerId);
 
@@ -53,9 +51,6 @@ public class RefreshTokenService {
                 && savedRefreshToken.equals(refreshToken);
     }
 
-    /**
-     * Refresh Token 삭제
-     */
     public void delete(String customerId) {
         String key = createKey(customerId);
 
