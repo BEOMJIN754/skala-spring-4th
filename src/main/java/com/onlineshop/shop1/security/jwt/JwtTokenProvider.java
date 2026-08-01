@@ -15,6 +15,8 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.JwtException;
 
+import java.util.UUID;
+
 @Component
 public class JwtTokenProvider {
 
@@ -44,6 +46,7 @@ public class JwtTokenProvider {
                 jwtProperties.accessTokenExpiration());
 
         return Jwts.builder()
+                .id(UUID.randomUUID().toString())
                 .subject(customerId)
                 .claim(ROLE_CLAIM, role.name())
                 .claim(TOKEN_TYPE_CLAIM, ACCESS_TOKEN_TYPE)
@@ -59,6 +62,7 @@ public class JwtTokenProvider {
                 jwtProperties.refreshTokenExpiration());
 
         return Jwts.builder()
+                .id(UUID.randomUUID().toString())
                 .subject(customerId)
                 .claim(TOKEN_TYPE_CLAIM, REFRESH_TOKEN_TYPE)
                 .issuedAt(Date.from(now))
@@ -129,6 +133,16 @@ public class JwtTokenProvider {
                 .get(ROLE_CLAIM, String.class);
 
         return CustomerRole.valueOf(role);
+    }
+
+    // 남은 만료시간 계산
+    public long getRemainingExpiration(String token) {
+
+        Date expiration = parseClaims(token).getExpiration();
+
+        long remainingExpiration = expiration.getTime() - System.currentTimeMillis();
+
+        return Math.max(remainingExpiration, 0);
     }
 
 }

@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.onlineshop.shop1.auth.service.redis.AccessTokenBlacklistService;
 import com.onlineshop.shop1.domain.customer.entity.CustomerRole;
 
 import jakarta.servlet.FilterChain;
@@ -25,6 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         private static final String BEARER_PREFIX = "Bearer ";
 
         private final JwtTokenProvider jwtTokenProvider;
+        private final AccessTokenBlacklistService accessTokenBlacklistService;
 
         @Override
         protected void doFilterInternal(
@@ -39,8 +41,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 if (accessToken != null
                                 && jwtTokenProvider.validateToken(accessToken)
-                                && jwtTokenProvider.isAccessToken(accessToken)) {
-
+                                && jwtTokenProvider.isAccessToken(accessToken)
+                                && !accessTokenBlacklistService.contains(accessToken)) {
+                                                
                         setAuthentication(accessToken);
                 }
 

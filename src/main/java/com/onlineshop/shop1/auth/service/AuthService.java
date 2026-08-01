@@ -91,30 +91,48 @@ public class AuthService {
 
     public ReissueResponse reissue(ReissueRequest request) {
 
-        String refreshToken = request.getRefreshToken();
+    String oldRefreshToken = request.getRefreshToken();
 
-        validateRefreshToken(refreshToken);
+    validateRefreshToken(oldRefreshToken);
 
-        String customerId = jwtTokenProvider.getCustomerId(refreshToken);
+    String customerId =
+            jwtTokenProvider.getCustomerId(oldRefreshToken);
 
-        if (!refreshTokenService.matches(
-                customerId,
-                refreshToken)) {
-            throw new InvalidRefreshTokenException();
-        }
-
-        Customer customer = customerRepository
-                .findByCustomerId(customerId)
-                .orElseThrow(InvalidRefreshTokenException::new);
-
-        String newAccessToken = jwtTokenProvider.createAccessToken(
-                customer.getCustomerId(),
-                customer.getRole());
-
-        return ReissueResponse.of(
-                newAccessToken,
-                jwtTokenProvider.getAccessTokenExpiration());
+    if (!refreshTokenService.matches(
+            customerId,
+            oldRefreshToken
+    )) {
+        throw new InvalidRefreshTokenException();
     }
+
+    Customer customer = customerRepository
+            .findByCustomerId(customerId)
+            .orElseThrow(InvalidRefreshTokenException::new);
+
+    String newAccessToken =
+            jwtTokenProvider.createAccessToken(
+                    customer.getCustomerId(),
+                    customer.getRole()
+            );
+
+    String newRefreshToken =
+            jwtTokenProvider.createRefreshToken(
+                    customer.getCustomerId()
+            );
+
+    refreshTokenService.save(
+            customer.getCustomerId(),
+            newRefreshToken,
+            jwtTokenProvider.getRefreshTokenExpiration()
+    );
+
+    return ReissueResponse.of(
+            newAccessToken,
+            newRefreshToken,
+            jwtTokenProvider.getAccessTokenExpiration(),
+            jwtTokenProvider.getRefreshTokenExpiration()
+    );
+}
 
     private void validateRefreshToken(String refreshToken) {
 
