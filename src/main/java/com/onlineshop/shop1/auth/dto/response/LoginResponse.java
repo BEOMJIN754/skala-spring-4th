@@ -1,4 +1,4 @@
-package com.onlineshop.shop1.auth.dto;
+package com.onlineshop.shop1.auth.dto.response;
 
 import com.onlineshop.shop1.domain.customer.entity.Customer;
 import com.onlineshop.shop1.domain.customer.entity.CustomerRole;

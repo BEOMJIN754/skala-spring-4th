@@ -1,4 +1,4 @@
-package com.onlineshop.shop1.auth.dto;
+package com.onlineshop.shop1.auth.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

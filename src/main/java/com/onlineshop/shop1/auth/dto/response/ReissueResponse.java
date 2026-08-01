@@ -1,4 +1,4 @@
-package com.onlineshop.shop1.auth.dto;
+package com.onlineshop.shop1.auth.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;

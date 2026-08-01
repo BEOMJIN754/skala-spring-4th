@@ -19,7 +19,6 @@ import com.onlineshop.shop1.auth.service.AuthService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
