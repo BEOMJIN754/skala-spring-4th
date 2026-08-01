@@ -114,6 +114,21 @@ public class JwtTokenProvider {
         }
     }
 
-    
+    public boolean isAccessToken(String token) {
+        try {
+            String tokenType = getTokenType(token);
+
+            return ACCESS_TOKEN_TYPE.equals(tokenType);
+        } catch (JwtException | IllegalArgumentException exception) {
+            return false;
+        }
+    }
+
+    public CustomerRole getRole(String token) {
+        String role = parseClaims(token)
+                .get(ROLE_CLAIM, String.class);
+
+        return CustomerRole.valueOf(role);
+    }
 
 }

@@ -29,7 +29,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signup")
-    @Operation(summary = "회원가입", description = "사용자 아이디와 비밀번호로 회원가입합니다.")
+    @Operation(summary = "회원가입", description = "사용자 아이디와 비밀번호로 회원가입")
     public ResponseEntity<SignupResponse> signup(@Valid @RequestBody SignupRequest request) {
         SignupResponse response = authService.signup(request);
 
@@ -37,14 +37,14 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    @Operation(summary = "로그인", description = "사용자 아이디와 비밀번호를 검증합니다.")
+    @Operation(summary = "로그인", description = "사용자 아이디와 비밀번호를 검증")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         LoginResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/reissue")
-    @Operation(summary = "Access Token 재발급", description = "유효한 Refresh Token을 사용해 새로운 Access Token을 발급합니다.")
+    @Operation(summary = "Access Token 재발급", description = "유효한 Refresh Token을 사용해 새로운 Access Token을 발급")
     public ResponseEntity<ReissueResponse> reissue(@Valid @RequestBody ReissueRequest request) {
         ReissueResponse response = authService.reissue(request);
         return ResponseEntity.ok(response);

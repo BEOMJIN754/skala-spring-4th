@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/order")
 @RequiredArgsConstructor
-@Tag(name = "상품 주문", description="주문에 대한 내용")
+@Tag(name = "주문", description="주문에 대한 내용")
 public class OrderController {
     private final OrderService orderService;
 
